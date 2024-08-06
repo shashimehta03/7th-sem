@@ -1,0 +1,40 @@
+def bisection(f, a, b, tol):
+    if f(a) * f(b) >= 0:
+        print("Bisection method fails. f(a) and f(b) must have opposite signs.")
+        return None
+    a_n = a
+    b_n = b
+    while (b_n - a_n) / 2.0 > tol:
+        midpoint = (a_n + b_n) / 2.0
+        if f(midpoint) == 0:
+            return midpoint
+        elif f(a_n) * f(midpoint) < 0:
+            b_n = midpoint
+        else:
+            a_n = midpoint
+    return (a_n + b_n) / 2.0
+
+def newton_raphson(f, df, x0, tol, max_iter):
+    x = x0
+    for _ in range(max_iter):
+        fx = f(x)
+        if abs(fx) < tol:
+            return x
+        Dfx = df(x)
+        if Dfx == 0:
+            print("Zero derivative. No solution found.")
+            return None
+        x = x - fx / Dfx
+    print("Exceeded maximum iterations. No solution found.")
+    return None
+
+def f(x):
+    return x**3 - x - 2
+
+def df(x):
+    return 3*x**2 - 1
+
+root_bisection = bisection(f, 1, 2, 1e-5)
+print(f"Bisection Method: Root found: {root_bisection}")
+root_newton_raphson = newton_raphson(f, df, 1.5, 1e-5, 100)
+print(f"Newton-Raphson Method: Root found: {root_newton_raphson}")
