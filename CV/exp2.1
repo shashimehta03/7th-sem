@@ -1,0 +1,48 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def display_images(images, titles):
+    n = len(images)
+    plt.figure(figsize=(15, 5))
+    for i in range(n):
+        plt.subplot(1, n, i+1)
+        plt.imshow(images[i], cmap='gray')
+        plt.title(titles[i])
+        plt.axis('off')
+    plt.show()
+
+
+image = cv2.imread('img-2.jpg', cv2.IMREAD_GRAYSCALE)
+
+
+smoothed_image = cv2.GaussianBlur(image, (9, 9), 0)
+
+laplacian_filter = cv2.Laplacian(image, cv2.CV_64F)
+sharpened_image = cv2.convertScaleAbs(laplacian_filter)
+
+f = np.fft.fft2(image)
+fshift = np.fft.fftshift(f)
+magnitude_spectrum = 20 * np.log(np.abs(fshift))
+
+
+rows, cols = image.shape
+crow, ccol = rows // 2, cols // 2
+mask = np.ones((rows, cols), np.uint8)
+r = 30  
+center = [crow, ccol]
+x, y = np.ogrid[:rows, :cols]
+mask_area = (x - center[0]) ** 2 + (y - center[1]) ** 2 <= r*r
+mask[mask_area] = 0
+fshift_filtered = fshift * mask
+f_ishift = np.fft.ifftshift(fshift_filtered)
+filtered_image = np.fft.ifft2(f_ishift)
+filtered_image = np.abs(filtered_image)
+
+
+titles = ['Original Image', 'Smoothed Image (Gaussian Blur)      ', '    Sharpened Image (Laplacian)',
+          'Magnitude Spectrum', 'High-pass Filtered Image']
+images = [image, smoothed_image, sharpened_image, magnitude_spectrum, filtered_image]
+display_images(images, titles)
+#2.1
